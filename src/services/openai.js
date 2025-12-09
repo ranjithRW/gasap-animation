@@ -14,14 +14,16 @@ Rules:
 - Sequence animations using tl.to() calls.
 - Do not include CSS unless animation needs it.
 - Never include mock data or placeholders beyond what's needed for animation.
-- Output ONLY the GSAP timeline code, no imports, no component wrapper, just the animation code.
+- Output ONLY the GSAP timeline code, no imports, no component wrapper, no React.useRef declarations, just the animation code.
+- DO NOT include: const boxRef = React.useRef(null) or any React imports or declarations.
 - Always start with: const tl = gsap.timeline()
 - Use tl.to() for animations.
+- Use boxRef.current in your animations (it will be automatically replaced).
 - Example format:
 const tl = gsap.timeline()
-tl.to(boxRef, { x: 100, duration: 1, ease: "power2.out" })
-tl.to(boxRef, { y: 50, duration: 1, ease: "power2.out" })
-tl.to(boxRef, { rotate: 360, duration: 1, ease: "power2.out" })`
+tl.to(boxRef.current, { x: 100, duration: 1, ease: "power2.out" })
+tl.to(boxRef.current, { y: 50, duration: 1, ease: "power2.out" })
+tl.to(boxRef.current, { rotate: 360, duration: 1, ease: "power2.out" })`
 
 export async function generateAnimationCode(prompt) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY
