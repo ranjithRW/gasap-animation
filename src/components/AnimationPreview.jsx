@@ -217,6 +217,21 @@ function AnimationPreview({ code, prompt = '' }) {
     }
   }, [code, executeAnimation])
 
+  // When code is cleared, stop any running timeline and reset transforms
+  useEffect(() => {
+    if (!code) {
+      if (timelineRef.current) {
+        timelineRef.current.kill()
+        timelineRef.current = null
+      }
+      setUserControlActive(false)
+      setTransformState({ x: 0, y: 0, scale: 1, rotation: 0 })
+      if (modelRef.current) {
+        gsap.set(modelRef.current, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1 })
+      }
+    }
+  }, [code])
+
   // Default demo animation when no code
   useEffect(() => {
     if (!code && modelRef.current && !userControlActive) {

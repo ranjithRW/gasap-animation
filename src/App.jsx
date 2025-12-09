@@ -11,6 +11,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const handlePromptChange = (value) => {
+    setPrompt(value)
+    if (!value.trim()) {
+      setGeneratedCode('')
+      setError('')
+    }
+  }
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError('Please enter an animation prompt')
@@ -40,7 +48,7 @@ function App() {
 
         <PromptInput
           prompt={prompt}
-          setPrompt={setPrompt}
+          setPrompt={handlePromptChange}
           onGenerate={handleGenerate}
           isLoading={isLoading}
         />
