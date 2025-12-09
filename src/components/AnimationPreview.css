@@ -56,3 +56,39 @@
   font-style: italic;
 }
 
+.manual-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.manual-controls button {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: #eef1f7;
+  color: #333;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.manual-controls button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.manual-controls button:active {
+  transform: translateY(0);
+}
+
+.manual-controls .manual-hint {
+  color: #555;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+

@@ -8,6 +8,20 @@ function AnimationPreview({ code, prompt = '' }) {
   const containerRef = useRef(null)
   const timelineRef = useRef(null)
   const [error, setError] = useState('')
+  const [transformState, setTransformState] = useState({
+    x: 0,
+    y: 0,
+    scale: 1,
+    rotation: 0
+  })
+  const [userControlActive, setUserControlActive] = useState(false)
+  const dragState = useRef({
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0
+  })
 
   const executeAnimation = useCallback((animationCode) => {
     if (!modelRef.current) return null
@@ -103,6 +117,87 @@ function AnimationPreview({ code, prompt = '' }) {
     executeAnimation(code)
   }, [code, executeAnimation])
 
+  // Allow manual transform controls when no generated code is present
+  const applyTransform = useCallback((next) => {
+    setTransformState((prev) => {
+      const updated = typeof next === 'function' ? next(prev) : next
+      if (!code && modelRef.current) {
+        gsap.set(modelRef.current, {
+          x: updated.x,
+          y: updated.y,
+          scale: updated.scale,
+          rotation: updated.rotation
+        })
+      }
+      return updated
+    })
+  }, [code])
+
+  const enableUserControl = useCallback(() => {
+    if (code) return
+    // Stop demo animation before giving control
+    if (timelineRef.current) {
+      timelineRef.current.kill()
+      timelineRef.current = null
+    }
+    setUserControlActive(true)
+  }, [code])
+
+  const handlePointerDown = useCallback((e) => {
+    if (code) return
+    enableUserControl()
+    dragState.current = {
+      dragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: transformState.x,
+      originY: transformState.y
+    }
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+  }, [code, enableUserControl, transformState.x, transformState.y])
+
+  const handlePointerMove = useCallback((e) => {
+    const state = dragState.current
+    if (!state.dragging || code) return
+    const dx = e.clientX - state.startX
+    const dy = e.clientY - state.startY
+    applyTransform((prev) => ({
+      ...prev,
+      x: state.originX + dx,
+      y: state.originY + dy
+    }))
+  }, [code, applyTransform])
+
+  const handlePointerUp = useCallback(() => {
+    dragState.current.dragging = false
+    window.removeEventListener('pointermove', handlePointerMove)
+    window.removeEventListener('pointerup', handlePointerUp)
+  }, [handlePointerMove])
+
+  const handleWheel = useCallback((e) => {
+    if (code) return
+    enableUserControl()
+    e.preventDefault()
+    const delta = e.deltaY < 0 ? 0.1 : -0.1
+    applyTransform((prev) => {
+      const nextScale = Math.min(3, Math.max(0.5, prev.scale + delta))
+      return { ...prev, scale: nextScale }
+    })
+  }, [code, enableUserControl, applyTransform])
+
+  const handleRotate = useCallback((delta) => {
+    if (code) return
+    enableUserControl()
+    applyTransform((prev) => ({ ...prev, rotation: prev.rotation + delta }))
+  }, [code, enableUserControl, applyTransform])
+
+  const handleResetTransform = useCallback(() => {
+    if (code) return
+    setUserControlActive(false)
+    applyTransform({ x: 0, y: 0, scale: 1, rotation: 0 })
+  }, [code, applyTransform])
+
   // Auto-play when code changes
   useEffect(() => {
     if (code && modelRef.current) {
@@ -110,6 +205,9 @@ function AnimationPreview({ code, prompt = '' }) {
       if (timelineRef.current) {
         timelineRef.current.kill()
       }
+      // Reset any manual transforms before playing generated animations
+      setUserControlActive(false)
+      setTransformState({ x: 0, y: 0, scale: 1, rotation: 0 })
       
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
@@ -121,7 +219,7 @@ function AnimationPreview({ code, prompt = '' }) {
 
   // Default demo animation when no code
   useEffect(() => {
-    if (!code && modelRef.current) {
+    if (!code && modelRef.current && !userControlActive) {
       // Kill any previous timeline
       if (timelineRef.current) {
         timelineRef.current.kill()
@@ -147,7 +245,7 @@ function AnimationPreview({ code, prompt = '' }) {
         if (demoTimeline) demoTimeline.kill()
       }
     }
-  }, [code])
+  }, [code, userControlActive])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -163,7 +261,12 @@ function AnimationPreview({ code, prompt = '' }) {
 
   return (
     <div ref={containerRef} className="preview-container">
-      <div onClick={playAnimation} style={{ cursor: 'pointer' }}>
+      <div
+        onClick={code ? playAnimation : undefined}
+        onPointerDown={handlePointerDown}
+        onWheel={handleWheel}
+        style={{ cursor: code ? 'pointer' : 'grab' }}
+      >
         <ModelRenderer ref={modelRef} prompt={prompt} />
       </div>
       {error && <div className="animation-error">{error}</div>}
