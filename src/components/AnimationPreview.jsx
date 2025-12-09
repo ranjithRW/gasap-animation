@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
+import ModelRenderer from './models/ModelRenderer'
 import './AnimationPreview.css'
 
-function AnimationPreview({ code }) {
-  const boxRef = useRef(null)
+function AnimationPreview({ code, prompt = '' }) {
+  const modelRef = useRef(null)
   const containerRef = useRef(null)
   const timelineRef = useRef(null)
   const [error, setError] = useState('')
 
   const executeAnimation = useCallback((animationCode) => {
-    if (!boxRef.current) return null
+    if (!modelRef.current) return null
 
     // Reset animation but preserve initial background gradient
-    gsap.killTweensOf(boxRef.current)
+    gsap.killTweensOf(modelRef.current)
     // Reset transform properties but keep background for color animations
-    gsap.set(boxRef.current, { 
+    gsap.set(modelRef.current, { 
       x: 0, 
       y: 0, 
       rotation: 0, 
@@ -74,7 +75,7 @@ function AnimationPreview({ code }) {
       const executor = createExecutor()
       
       // Execute with the actual element
-      const timeline = executor(gsap, boxRef.current)
+      const timeline = executor(gsap, modelRef.current)
       
       // Store timeline reference
       timelineRef.current = timeline
@@ -104,7 +105,7 @@ function AnimationPreview({ code }) {
 
   // Auto-play when code changes
   useEffect(() => {
-    if (code && boxRef.current) {
+    if (code && modelRef.current) {
       // Kill any existing animations first
       if (timelineRef.current) {
         timelineRef.current.kill()
@@ -120,16 +121,16 @@ function AnimationPreview({ code }) {
 
   // Default demo animation when no code
   useEffect(() => {
-    if (!code && boxRef.current) {
+    if (!code && modelRef.current) {
       // Kill any previous timeline
       if (timelineRef.current) {
         timelineRef.current.kill()
       }
       
-      gsap.set(boxRef.current, { clearProps: 'all' })
+      gsap.set(modelRef.current, { clearProps: 'all' })
       
       const demoTimeline = gsap.timeline({ repeat: -1, yoyo: true })
-      demoTimeline.to(boxRef.current, {
+      demoTimeline.to(modelRef.current, {
         scale: 1.2,
         rotation: 10,
         duration: 1,
@@ -146,8 +147,8 @@ function AnimationPreview({ code }) {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (boxRef.current) {
-        gsap.killTweensOf(boxRef.current)
+      if (modelRef.current) {
+        gsap.killTweensOf(modelRef.current)
       }
       if (timelineRef.current) {
         timelineRef.current.kill()
@@ -157,8 +158,8 @@ function AnimationPreview({ code }) {
 
   return (
     <div ref={containerRef} className="preview-container">
-      <div ref={boxRef} className="animated-box" onClick={playAnimation}>
-        <span>Animate Me</span>
+      <div onClick={playAnimation} style={{ cursor: 'pointer' }}>
+        <ModelRenderer ref={modelRef} prompt={prompt} />
       </div>
       {error && <div className="animation-error">{error}</div>}
       {code && (

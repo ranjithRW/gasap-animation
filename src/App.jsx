@@ -50,7 +50,7 @@ function App() {
         <div className="content-grid">
           <div className="preview-section">
             <h2>Live Preview</h2>
-            <AnimationPreview code={generatedCode} />
+            <AnimationPreview code={generatedCode} prompt={prompt} />
           </div>
 
           <div className="code-section">

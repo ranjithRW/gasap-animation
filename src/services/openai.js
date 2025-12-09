@@ -20,6 +20,11 @@ Rules:
 - Always start with: const tl = gsap.timeline()
 - Use tl.to() for animations.
 - Use boxRef.current in your animations (it will be automatically replaced).
+- For bouncing animations (like ball bounce), use y property with appropriate easing like "bounce.out" or "elastic.out".
+- For jumping animations (like car jump), combine y movement with rotation for realistic effect.
+- For moving animations (like cloud moving), use x property for horizontal movement.
+- For flying animations (like bird or plane), combine x, y movements with rotation.
+- Make animations realistic and contextually appropriate for the object type mentioned in the prompt.
 - Example format:
 const tl = gsap.timeline()
 tl.to(boxRef.current, { x: 100, duration: 1, ease: "power2.out" })
