@@ -129,12 +129,17 @@ function AnimationPreview({ code, prompt = '' }) {
       
       gsap.set(modelRef.current, { clearProps: 'all' })
       
+      // Simple bounce/jump demo for the default ball
       const demoTimeline = gsap.timeline({ repeat: -1, yoyo: true })
       demoTimeline.to(modelRef.current, {
-        scale: 1.2,
-        rotation: 10,
-        duration: 1,
-        ease: "power2.inOut"
+        y: -40,
+        scale: 1.05,
+        duration: 0.6,
+        ease: "bounce.out"
+      }).to(modelRef.current, {
+        y: 0,
+        duration: 0.4,
+        ease: "power1.in"
       })
       timelineRef.current = demoTimeline
 

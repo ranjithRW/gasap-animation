@@ -2,8 +2,17 @@
  * Detects the type of animation model from the user's prompt
  * Returns the model type and any relevant properties
  */
-export function detectModelType(prompt) {
-  const lowerPrompt = prompt.toLowerCase()
+export function detectModelType(prompt = '') {
+  const lowerPrompt = (prompt || '').toLowerCase()
+  
+  // Default to ball when nothing is provided
+  if (!lowerPrompt.trim()) {
+    return {
+      type: 'ball',
+      keywords: ['ball', 'bounce', 'sphere'],
+      defaultSize: 80
+    }
+  }
   
   // Ball animations
   if (lowerPrompt.includes('ball') || lowerPrompt.includes('bounce') || lowerPrompt.includes('sphere')) {
@@ -77,11 +86,11 @@ export function detectModelType(prompt) {
     }
   }
   
-  // Box/Card (default)
+  // Fallback: use ball as the generic model
   return {
-    type: 'box',
-    keywords: ['box', 'card', 'square'],
-    defaultSize: { width: 120, height: 120 }
+    type: 'ball',
+    keywords: ['ball', 'bounce', 'sphere'],
+    defaultSize: 80
   }
 }
 

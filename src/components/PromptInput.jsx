@@ -13,7 +13,7 @@ function PromptInput({ prompt, setPrompt, onGenerate, isLoading }) {
       <div className="input-wrapper">
         <textarea
           className="prompt-input"
-          placeholder="Describe your animation... (e.g., 'Make the card bounce, fade, and rotate in sequence')"
+          placeholder="Describe your animation... (e.g., 'Make the model bounce, fade, and rotate in sequence')"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyPress={handleKeyPress}
