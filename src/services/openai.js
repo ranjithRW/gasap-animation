@@ -11,6 +11,7 @@ Your job:
 Rules:
 - Animate only the boxRef element (which will be replaced with the actual DOM element).
 - Use GSAP properties: x, y, rotate, scale, opacity, duration, ease.
+- For color changes, use 'background' property, NOT 'backgroundColor'. Example: { background: '#00ff00' } or { background: 'green' }
 - Sequence animations using tl.to() calls.
 - Do not include CSS unless animation needs it.
 - Never include mock data or placeholders beyond what's needed for animation.
@@ -23,6 +24,7 @@ Rules:
 const tl = gsap.timeline()
 tl.to(boxRef.current, { x: 100, duration: 1, ease: "power2.out" })
 tl.to(boxRef.current, { y: 50, duration: 1, ease: "power2.out" })
+tl.to(boxRef.current, { background: 'green', duration: 1, ease: "power2.out" })
 tl.to(boxRef.current, { rotate: 360, duration: 1, ease: "power2.out" })`
 
 export async function generateAnimationCode(prompt) {
@@ -72,6 +74,10 @@ export async function generateAnimationCode(prompt) {
 
     // Clean up the code
     code = code.trim()
+
+    // Convert backgroundColor to background for GSAP compatibility
+    code = code.replace(/backgroundColor\s*:/g, 'background:')
+    code = code.replace(/['"]backgroundColor['"]\s*:/g, '"background":')
 
     // Ensure it's valid GSAP timeline code
     if (!code.includes('tl.') && !code.includes('timeline')) {

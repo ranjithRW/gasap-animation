@@ -11,9 +11,16 @@ function AnimationPreview({ code }) {
   const executeAnimation = useCallback((animationCode) => {
     if (!boxRef.current) return null
 
-    // Reset animation
-    gsap.set(boxRef.current, { clearProps: 'all' })
+    // Reset animation but preserve initial background gradient
     gsap.killTweensOf(boxRef.current)
+    // Reset transform properties but keep background for color animations
+    gsap.set(boxRef.current, { 
+      x: 0, 
+      y: 0, 
+      rotation: 0, 
+      scale: 1, 
+      opacity: 1 
+    })
     setError('')
 
     try {
@@ -29,6 +36,10 @@ function AnimationPreview({ code }) {
       
       // Clean up extra whitespace and newlines
       processedCode = processedCode.replace(/\n\s*\n/g, '\n').trim()
+      
+      // Convert backgroundColor to background for GSAP compatibility (in case AI still generates it)
+      processedCode = processedCode.replace(/backgroundColor\s*:/g, 'background:')
+      processedCode = processedCode.replace(/['"]backgroundColor['"]\s*:/g, '"background":')
       
       // Replace boxRef.current and boxRef with a parameter name
       // Use parameter names that are unlikely to conflict
